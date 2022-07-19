@@ -1,4 +1,4 @@
-Cắt bớt context dài không dùng stride và sử dụng phobert
+Cắt bớt context dài không dùng stride và sử dụng phobert, pretrain context riêng question riêng
 ## Model Architecture
 
 <p float="left" align="center">
@@ -17,8 +17,8 @@ Cắt bớt context dài không dùng stride và sử dụng phobert
 ## Training & Evaluation
 
 ```bash
-git clone https://github.com/huyenxam/QA-Biaffine.git
-cd QA-Biaffine
+git clone https://github.com/huyenxam/QA-BiaffineVersion6.git
+cd QA-BiaffineVersion6
 pip install -r requirements.txt
 bash train.sh
 ```
@@ -37,5 +37,4 @@ bash train.sh
 
 - [Huggingface Transformers](https://github.com/huggingface/transformers)
 
-# QA-Biaffine
 # QA-BiaffineVersion6

@@ -12,6 +12,7 @@ class InputSample(object):
         self.list_sample = []                       # Danh sách các mẫu
         with open(path, 'r', encoding='utf8') as f: # Đọc file data
             self.list_sample = json.load(f)
+        self.list_sample = self.list_sample[:10]
 
     def get_character(self, word, max_char_len):
         word_seq = []
@@ -82,8 +83,9 @@ class MyDataSet(Dataset):
         self.label_2int = {w: i for i, w in enumerate(self.label_set)}      
 
     def preprocess(self, tokenizer, sentence, max_seq_length, mask_padding_with_zero=True):
+        firstSWindices = [0]
         input_ids = [tokenizer.cls_token_id]                    # Thêm [CLS] vào đầu câu
-        firstSWindices = [len(input_ids)]
+        firstSWindices.append(len(input_ids))
 
         for w in sentence:
             word_token = tokenizer.encode(w)                    # Chuyển các token thành số
@@ -135,7 +137,7 @@ class MyDataSet(Dataset):
         start, end, entity = [], [], []
         label = np.unique(label, axis=0).tolist()           # Loại bỏ những label trùng nhau
         for lb in label:                                    # lặp qua từng label
-            if int(lb[1]) > self.max_seq_length or int(lb[2]) > self.max_seq_length:        # Nếu vị trí bd hoặc kết thúc lớn hơn max_seq_length thì chuyển thành vị trí (0, 0)
+            if int(lb[1]) > self.max_ctx_length or int(lb[2]) > self.max_ctx_length:        # Nếu vị trí bd hoặc kết thúc lớn hơn max_seq_length thì chuyển thành vị trí (0, 0)
                 start.append(0)
                 end.append(0)
             else:
@@ -147,7 +149,7 @@ class MyDataSet(Dataset):
                 print(lb)
         
         label = torch.sparse.FloatTensor(torch.tensor([start, end], dtype=torch.int64), torch.tensor(entity),
-                                         torch.Size([self.max_seq_length, self.max_seq_length])).to_dense()
+                                         torch.Size([self.max_ctx_length, self.max_ctx_length])).to_dense()
         # Example: start = 2, end = 3, entity = 1, max_seq_length = 5
         """ label = tensor([[0, 0, 0, 0, 0],
                             [0, 0, 0, 0, 0],
@@ -164,7 +166,7 @@ class MyDataSet(Dataset):
         question = sample['question']
         char_ctx = sample['char_ctx']
         char_ques = sample['char_ques']       
-        label = sample['label_idx']
+        label = sample['label']
 
         seq_length = len(context) + 2 
         input_ids_ctx, attention_mask_ctx, firstSWindices_ctx = self.preprocess(self.tokenizer, context, self.max_ctx_length)

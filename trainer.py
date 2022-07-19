@@ -139,7 +139,6 @@ class Trainer(object):
         labels, outputs, seq_lengths = [], [], []
         for batch in eval_dataloader:
             batch = tuple(t.to(self.device) for t in batch)
-
             inputs = {'input_ids_ctx': batch[0],
                       'attention_mask_ctx': batch[1],
                       'firstSWindices_ctx': batch[2],
@@ -153,11 +152,11 @@ class Trainer(object):
             seq_length = batch[6]
             with torch.no_grad():
                 output = self.model(**inputs)
-                # for i in range(len(output)):
-                #     input_tensor, cate_pred = output[i].max(dim=-1)
-                #     label1 = get_pred_entity(cate_pred, input_tensor, self.label_set, True)
-                #     # labels.append(label1)
-                #     print(label1)
+                for i in range(len(output)):
+                    input_tensor, cate_pred = output[i].max(dim=-1)
+                    label1 = get_pred_entity(cate_pred, input_tensor, self.label_set, True)
+                    # labels.append(label1)
+                    print(label1)
             seq_lengths.append(seq_length)
             mask = get_mask(max_length=self.args.max_ctx_length, seq_length=seq_length)
             mask = mask.to(self.device)
@@ -171,16 +170,16 @@ class Trainer(object):
         outputs = torch.cat(outputs, dim=0)
         seq_lengths = torch.cat(seq_lengths, dim=0)
 
-        predictions = batch_computeF1(labels, outputs, seq_lengths, self.label_set)
-        exact_match, f1 = evaluate(predictions, self.args.max_char_len, self.args.max_seq_length, mode)
+        # predictions = batch_computeF1(labels, outputs, seq_lengths, self.label_set)
+        # exact_match, f1 = evaluate(predictions, self.args.max_char_len, self.args.max_seq_length, mode)
 
-        print()
-        print(exact_match)
-        print(f1)
+        # print()
+        # print(exact_match)
+        # print(f1)
 
-        if f1 > self.best_score:
-            self.save_model()
-            self.best_score = f1
+        # if f1 > self.best_score:
+        #     self.save_model()
+        #     self.best_score = f1
 
     def save_model(self):
         checkpoint = {'model': self.model,
